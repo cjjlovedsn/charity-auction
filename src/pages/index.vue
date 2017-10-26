@@ -3,7 +3,7 @@
     <ul class="showpiece">
       <li :style="{height: emptyHeight}"></li>
       <router-link tag="li" :to="{name: 'details', params: {src: item.src}}" v-for="(item, index) in imgs" :style="{width: imgWidth + 'px'}" :key="item.id">
-    	  <img src="" v-lazy="item.src" @load="lazyLoadEvent" />
+    	  <img :src="item.src" @load="lazyLoadEvent" ref="imgs" />
     	  <div class="showpiece-info">{{item.info}}</div>
       </router-link>
     </ul>
@@ -17,10 +17,10 @@
       return {
         imgs: null,
         clientWidth: document.documentElement.clientWidth || 0,
-        loadedImgs: [],
         minHeightArr: [],
         loadingImgHeight: 0,
-        loadingNum: 0
+        loadingNum: 0,
+        timers: []
       }
     },
     computed: {
@@ -42,10 +42,8 @@
         let src = path[0].src
         let mha = this.minHeightArr
         let li = el.parentElement
-        let rec = li.getBoundingClientRect()
-        let h = rec.height
-        if (this.loadedImgs.includes(src)) return
-        this.loadedImgs.push(src)
+        let h = li.offsetHeight
+        mha.length < 1 && console.log(h)
         li.style.position = 'absolute'
         if (/\.gif$/.test(src)) {
           let n = this.loadingNum
@@ -65,22 +63,29 @@
             return value === min
           })
           mha[index] += h
-          console.log(min)
           li.style.top = min + 'px'
           li.style.left = this.imgWidth * index + 'px'
         }
+        mha.length < 2 && console.log(li.offsetHeight)
       }
     },
     mounted () {
       this.$http.get('/imgs').then(res => {
         this.imgs = res.data
       })
-//    this.$Lazyload.$on('loaded', this.lazyLoadEvent)
-    },
-    beforeRouteLeave (to, from, next) {
-      console.log(1)
-      this.$Lazyload.$off('loaded')
-      next()
+      window.addEventListener('resize', () => {
+        this.clientWidth = document.documentElement.clientWidth || 0
+        this.minHeightArr.splice(0)
+        this.timers.forEach(function (t) {
+          clearTimeout(t)
+        })
+        this.timers.splice(0)
+        this.$refs.imgs.forEach((img) => {
+          this.timers.push(setTimeout(() => {
+            this.lazyLoadEvent({path: [img]})
+          }, 500))
+        })
+      })
     }
   }
 </script>
@@ -90,9 +95,10 @@
   .container
     .showpiece
       li
-        position: relative;
-        top: 0;
+        position: absolute;
+        top: 150%;
         padding: 10px;
+        transition: all .5s cubic-bezier(.55,0,.1,1);
         img
           width: 100%;
         .showpiece-info
