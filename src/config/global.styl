@@ -1,3 +1,6 @@
+@import '../../node_modules/stylus-px2rem'
+
+html-font-size = 25px
 /*
 *全局颜色设置
 *
@@ -13,5 +16,9 @@ font-color-gray = #ccc
 
 /***********************/
 
-box-shadow()
-  box-shadow 0 1px 3px 0 rgba(0,0,0,0.08)
+text-overflow(n = 2)
+  display -webkit-box
+  overflow hidden
+  text-overflow ellipsis
+  -webkit-line-clamp n
+  -webkit-box-orient vertical
