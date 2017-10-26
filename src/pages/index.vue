@@ -1,9 +1,9 @@
 <template>
   <div class="container">
     <ul class="showpiece">
-      <li :style="{height: emptyHeight}"></li>
-      <router-link tag="li" :to="{name: 'details', params: {src: item.src}}" v-for="(item, index) in imgs" :style="{width: imgWidth + 'px'}" :key="item.id">
-    	  <img :src="item.src" @load="lazyLoadEvent" ref="imgs" />
+      <!--<li :style="{height: emptyHeight}"></li>-->
+      <router-link tag="li" :to="{name: 'details', query: {src: item.src}}" v-for="(item, index) in imgs" :style="{width: imgWidth + 'px'}" :key="item.id">
+    	  <img :src="item.src" @load="loadImg" ref="imgs" />
     	  <div class="showpiece-info">{{item.info}}</div>
       </router-link>
     </ul>
@@ -15,12 +15,11 @@
     name: 'index',
     data () {
       return {
-        imgs: null,
+        imgs: [],
         clientWidth: document.documentElement.clientWidth || 0,
         minHeightArr: [],
         loadingImgHeight: 0,
-        loadingNum: 0,
-        timers: []
+        loadingNum: 0
       }
     },
     computed: {
@@ -37,13 +36,13 @@
       }
     },
     methods: {
-      lazyLoadEvent ({path}) {
+      loadImg ({path}) {
+        if (!path) return
         let el = path[0] || {}
         let src = path[0].src
         let mha = this.minHeightArr
         let li = el.parentElement
         let h = li.offsetHeight
-        mha.length < 1 && console.log(h)
         li.style.position = 'absolute'
         if (/\.gif$/.test(src)) {
           let n = this.loadingNum
@@ -66,32 +65,39 @@
           li.style.top = min + 'px'
           li.style.left = this.imgWidth * index + 'px'
         }
-        mha.length < 2 && console.log(li.offsetHeight)
       }
     },
     mounted () {
-      this.$http.get('/imgs').then(res => {
-        this.imgs = res.data
-      })
+//    this.$http.get('/imgs').then(res => {
+//      this.imgs = res.data
+//    })
+      for (let i = 1; i <= 23; i++) {
+        this.imgs.push({
+          id: i,
+          src: require(`@/assets/${(i > 9 ? i : `0${i}`)}.jpg`),
+          info: '一些描述'
+        })
+      }
+      let timer = null
       window.addEventListener('resize', () => {
         this.clientWidth = document.documentElement.clientWidth || 0
         this.minHeightArr.splice(0)
-        this.timers.forEach(function (t) {
-          clearTimeout(t)
-        })
-        this.timers.splice(0)
-        this.$refs.imgs.forEach((img) => {
-          this.timers.push(setTimeout(() => {
-            this.lazyLoadEvent({path: [img]})
-          }, 500))
-        })
+        if (timer) {
+          clearTimeout(timer)
+          timer = null
+        }
+        timer = setTimeout(() => {
+          this.$refs.imgs.forEach((img) => {
+            this.loadImg({path: [img]})
+          })
+        }, 500)
       })
     }
   }
 </script>
 
 <style scoped lang="stylus">
-  @import '~@/config/common.styl'
+  @import '~@/config/global.styl'
   .container
     .showpiece
       li
