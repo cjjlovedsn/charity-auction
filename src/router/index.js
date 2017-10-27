@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Index from '@/pages/index'
 import Details from '@/pages/details'
+import Edit from '@/pages/edit'
 
 Vue.use(Router)
 
@@ -15,8 +16,11 @@ export default new Router({
     }, {
       path: '/details',
       name: 'details',
-      component: Details,
-      meta: {isKeepAlive: true}
+      component: Details
+    }, {
+      path: '/edit',
+      name: 'edit',
+      component: Edit
     }
   ],
   scrollBehavior (to, from, savedPosition) {

@@ -8,7 +8,7 @@
     "dev": "node build/dev-server.js",
     "start": "npm run dev",
     "build": "node build/build.js",
-    "mock": "json-server --watch mock/mock.js",
+    "mock": "json-server --watch mock/mock.js --config mock/json-server.json",
     "unit": "cross-env BABEL_ENV=test karma start test/unit/karma.conf.js --single-run",
     "e2e": "node test/e2e/runner.js",
     "test": "npm run unit && npm run e2e",
@@ -17,6 +17,7 @@
   "dependencies": {
     "axios": "^0.16.2",
     "mint-ui": "^2.2.9",
+    "moment": "^2.19.1",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1"
   },

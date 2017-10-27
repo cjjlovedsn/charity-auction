@@ -1,28 +1,43 @@
 <template>
   <div class="container">
     <div class="goods-detail">
-      <img :src="src"/>
+      <img src="" v-lazy="src"/>
       <div class="title">一个标题</div>
       <div class="sub-title">一些描述一些描述一些描述一些描述一些描述一些描述一些描述一些描述一些描述</div>
       <div class="base-price"><span>底价：</span><i class="price">$100.00</i></div>
       <div class="current-price"><span>当前竞拍价：</span><i class="price">$1000.00</i></div>
+      <countdown title="距离结束：" :time="time"></countdown>
       <div class="bidding">出价</div>
     </div>
     <div class="comments">
       <div class="comt-title">评论区</div>
       <ul class="comt-list" v-infinite-scroll="loadComt" infinite-scroll-disabled="loading" infinite-scroll-distance="10" >
+        <li class="comt-item">
+          <div class="nickname">鹅粒思</div>
+          <div class="bid">￥10000</div>
+          <div class="comt-content">还有更高的吗！！！</div>
+          <div class="comt-date">2017-10-24</div>
+        </li>
+        <li class="comt-item">
+          <div class="nickname">秋刀鱼</div>
+          <div class="bid">￥1000</div>
+          <div class="comt-content">很不错啊！！！</div>
+          <div class="comt-date">2017-10-24</div>
+        </li>
         <li v-for="(item, index) in comtList" class="comt-item">
           <div class="nickname">{{item.nickname}}</div>
           <div class="bid">${{item.bid}}</div>
           <div class="comt-content">{{item.content}}</div>
-          <div class="comt-date">{{item.comt_date}}</div>
+          <div class="comt-date">{{item.comt_date | mmt('YYYY-MM-DD HH:mm:ss')}}</div>
         </li>
+        <li class="comt-item" style="text-align: center;" v-show="loading"><mt-spinner type="fading-circle" style="display: inline-block;" color="#ccc"></mt-spinner><span>加载中...</span></li>
       </ul>
     </div>
   </div>
 </template>
 
 <script>
+  import countdown from '@/components/countdown'
   export default {
     name: 'details',
     data () {
@@ -30,7 +45,13 @@
         src: '',
         comtList: [],
         id: 0,
-        loading: false
+        loading: false,
+        now: new Date()
+      }
+    },
+    computed: {
+      time () {
+        return new Date('2017-11-01 15:23:05') - this.now
       }
     },
     methods: {
@@ -43,14 +64,21 @@
           this.loading = false
           this.id++
         })
+      },
+      setTime () {
+        this.now = new Date()
+        requestAnimationFrame(this.setTime)
       }
+    },
+    components: {
+      countdown
     },
     mounted () {
       let src = this.$route.query.src
       if (src) {
         this.src = src
       }
-//    this.loadComt()
+      requestAnimationFrame(this.setTime)
     }
   }
 </script>

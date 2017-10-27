@@ -9,6 +9,7 @@
             <div class="title">{{item.title}}</div>
         	  <div class="item-sub-title">{{item.info}}</div>
         	  <div class="price">{{item.price}}</div>
+        	  <countdown title="距离结束：" :time="times[index]" end="已结束"></countdown>
           </div>
         </router-link>
       </transition-group>
@@ -16,30 +17,49 @@
 </template>
 
 <script>
+  import { Indicator } from 'mint-ui'
+  import countdown from '@/components/countdown'
   export default {
     name: 'index',
     data () {
       return {
-        imgs: []
+        imgs: [],
+        now: new Date()
       }
     },
     computed: {
-    },
-    methods: {
-    },
-    mounted () {
-//    this.$http.get('/imgs').then(res => {
-//      this.imgs = res.data
-//    })
-      for (let i = 1; i <= 23; i++) {
-        this.imgs.push({
-          id: i,
-          src: require(`@/assets/${(i > 9 ? i : `0${i}`)}.jpg`),
-          title: '这是标题',
-          info: '一些描述'.repeat(10),
-          price: `$${(Math.random() * 100 + 10).toFixed(2)}`
+      times () {
+        return this.imgs.map(item => {
+          return new Date(item.end_date) - this.now
         })
       }
+    },
+    methods: {
+      setTime () {
+        this.now = new Date()
+        requestAnimationFrame(this.setTime)
+      }
+    },
+    components: {
+      countdown
+    },
+    mounted () {
+      Indicator.open('加载中...')
+      this.$http.get('/imgs').then(res => {
+        this.imgs = res.data
+        Indicator.close()
+      })
+      requestAnimationFrame(this.setTime)
+//    for (let i = 1; i <= 23; i++) {
+//      this.imgs.push({
+//        id: i,
+//        src: require(`@/assets/${(i > 9 ? i : `0${i}`)}.jpg`),
+//        title: '这是标题',
+//        info: '一些描述'.repeat(10),
+//        price: `$${(Math.random() * 100 + 10).toFixed(2)}`,
+//        end_date: new Date().setDate(Math.round(Math.random() * 28 + 31))
+//      })
+//    }
     }
   }
 </script>
@@ -59,7 +79,7 @@
         float: left;
         padding: 6px;
         width 50%;
-        height: 580px;
+        height: 640px;
         .item-detail
           padding: 10px;
           height: 100%;
@@ -87,4 +107,7 @@
           .price
             text-align: left;
             color: #f00;
+            border-bottom: 1px dashed #eee;
+          .countdown
+            margin-top: 10px;
 </style>
