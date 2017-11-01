@@ -1,36 +1,45 @@
 <template>
   <div class="container">
-      <transition-group name="pieces" class="showpiece" tag="ul">
-        <router-link tag="li" :to="{name: 'details', query: {src: item.src}}" v-for="(item, index) in imgs" class="item" :key="item.id">
-          <div class="item-detail">
-            <div class="img-box">
-          	  <img src="" v-lazy="item.src" />
-            </div>
-            <div class="title">{{item.title}}</div>
-        	  <div class="item-sub-title">{{item.info}}</div>
-        	  <div class="price">{{item.price}}</div>
-        	  <countdown title="距离结束：" :time="times[index]" end="已结束"></countdown>
+        <mt-loadmore :bottom-method="loadMore" :bottom-all-loaded="allLoaded" ref="loadmore" @bottom-status-change="pulldownEvent">
+          <transition-group name="pieces" class="showpiece clearfix" tag="ul">
+            <router-link tag="li" :to="{name: 'details', params: { item }}" v-for="(item, index) in list" class="item" :key="item.item_id">
+              <div class="item-detail">
+                <div class="img-box">
+              	  <img src="" v-lazy="item.item_img_path" />
+                </div>
+                <div class="title">{{item.item_name}}</div>
+            	  <div class="item-sub-title">{{item.item_remark}}</div>
+            	  <div class="price">￥{{item.init_price}}</div>
+            	  <countdown title="距离结束：" :time="times[index]" end="已结束"></countdown>
+              </div>
+            </router-link>
+          </transition-group>
+          <div slot="bottom" class="mint-loadmore-bottom">
+            <span v-show="bottomStatus !== 'loading'"><span :class="{ 'rotate': bottomStatus === 'drop' }">↑</span> 加载更多</span>
+            <span v-show="bottomStatus === 'loading'">Loading...</span>
           </div>
-        </router-link>
-      </transition-group>
+        </mt-loadmore>
   </div>
 </template>
 
 <script>
-  import { Indicator } from 'mint-ui'
+  import { Indicator, Toast } from 'mint-ui'
   import countdown from '@/components/countdown'
   export default {
     name: 'index',
     data () {
       return {
+        list: [],
+        allLoaded: false, // 默认允许上拉加载
+        bottomStatus: '',
         imgs: [],
         now: new Date()
       }
     },
     computed: {
       times () {
-        return this.imgs.map(item => {
-          return new Date(item.end_date) - this.now
+        return this.list.map(item => {
+          return new Date(item.endtime) - this.now
         })
       }
     },
@@ -38,6 +47,29 @@
       setTime () {
         this.now = new Date()
         requestAnimationFrame(this.setTime)
+      },
+      loadMore () {
+        this.allLoaded = true // 禁止上拉加载
+        this.$http.get('/index.php/auction/editauction/editAuctionLists').then(res => {
+          if (location.port === '8080') {
+            res.data.forEach(function (item, index) {
+              if (item.item_img_path) {
+                item.item_img_path = 'http://47.94.241.38' + item.item_img_path
+              }
+            })
+          }
+          this.allLoaded = false
+          Indicator.close()
+          this.$refs.loadmore.onBottomLoaded()
+          if (this.list.length) return // 暂无加载更多的功能
+          this.list.push(...res.data)
+        }).catch(err => {
+          console.log(err)
+          Toast('请求超时，请稍候重试')
+        })
+      },
+      pulldownEvent (status) {
+        this.bottomStatus = status
       }
     },
     components: {
@@ -45,10 +77,14 @@
     },
     mounted () {
       Indicator.open('加载中...')
-      this.$http.get('/imgs').then(res => {
-        this.imgs = res.data
-        Indicator.close()
-      })
+//    this.$http.get('/api/imgs').then(res => {
+//      this.imgs = res.data
+//      Indicator.close()
+//    }).catch(err => {
+//      console.log(err)
+//      Toast('请求超时，请稍候重试')
+//      Indicator.close()
+//    })
       requestAnimationFrame(this.setTime)
 //    for (let i = 1; i <= 23; i++) {
 //      this.imgs.push({
@@ -87,10 +123,10 @@
           .img-box
             width: 100%;
             height: 400px;
-            overflow: hidden;
-            overflow-x: auto;
+            line-height: 400px;
+            overflow: auto;
             img
-              height: 100%;
+              width: 100%;
               &[lazy=loading]
                 width: 100%;
                 height: auto;

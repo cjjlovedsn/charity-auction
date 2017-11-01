@@ -1,13 +1,16 @@
 <template>
   <div class="container">
-    <div class="goods-detail">
-      <img src="" v-lazy="src"/>
-      <div class="title">一个标题</div>
-      <div class="sub-title">一些描述一些描述一些描述一些描述一些描述一些描述一些描述一些描述一些描述</div>
-      <div class="base-price"><span>底价：</span><i class="price">$100.00</i></div>
-      <div class="current-price"><span>当前竞拍价：</span><i class="price">$1000.00</i></div>
-      <countdown title="距离结束：" :time="time"></countdown>
-      <div class="bidding">出价</div>
+    <div class="goods-detail" v-if="detail">
+      <img src="" v-lazy="detail.item_img_path"/>
+      <div class="detail-main"  v-show="!showBidModal">
+        <div class="title">{{ detail.item_name }}</div>
+        <div class="sub-title">{{ detail.item_remark }}</div>
+        <div class="base-price"><span>底价：</span><i class="price">￥{{ detail.init_price }}</i></div>
+        <div class="current-price"><span>当前竞拍价：</span><i class="price">$1000.00</i></div>
+        <countdown title="距离结束：" :time="time"></countdown>
+        <div class="bidding" :class="{disabled: time < 0}" @click="openBidModal">出价</div>
+      </div>
+      <bidding-modal v-model="showBidModal" :base="1000" :lowest="10"></bidding-modal>
     </div>
     <div class="comments">
       <div class="comt-title">评论区</div>
@@ -33,31 +36,37 @@
         <li class="comt-item" style="text-align: center;" v-show="loading"><mt-spinner type="fading-circle" style="display: inline-block;" color="#ccc"></mt-spinner><span>加载中...</span></li>
       </ul>
     </div>
+    <!--<mt-popup v-model="showBidModal" position="right">
+      <bidding-modal></bidding-modal>
+    </mt-popup>-->
   </div>
 </template>
 
 <script>
   import countdown from '@/components/countdown'
+  import biddingModal from '@/components/biddingModal'
   export default {
     name: 'details',
     data () {
       return {
-        src: '',
+        detail: {},
         comtList: [],
         id: 0,
         loading: false,
-        now: new Date()
+        now: new Date(),
+        showBidModal: false,
+        price: 0
       }
     },
     computed: {
       time () {
-        return new Date('2017-11-01 15:23:05') - this.now
+        return new Date(this.detail.endtime) - this.now
       }
     },
     methods: {
       loadComt () {
         this.loading = true
-        this.$http.get('/comments', {
+        this.$http.get('/api/comments', {
           params: {id: this.id}
         }).then(res => {
           this.comtList.push(...res.data)
@@ -66,19 +75,34 @@
         })
       },
       setTime () {
-        this.now = new Date()
-        requestAnimationFrame(this.setTime)
+        if (this.time > 0) {
+          this.now = new Date()
+          requestAnimationFrame(this.setTime)
+        }
+      },
+      openBidModal () {
+        if (this.time > 0) {
+          this.showBidModal = true
+        }
+      },
+      hideBidModal () {
+        this.showBidModal = false
       }
     },
     components: {
-      countdown
+      countdown,
+      biddingModal
     },
     mounted () {
-      let src = this.$route.query.src
-      if (src) {
-        this.src = src
+      let detail = this.$route.params.item
+      detail && sessionStorage.setItem('item', JSON.stringify(detail))
+      detail = detail || JSON.parse(sessionStorage.getItem('item') || null)
+      if (detail) {
+        this.$set(this.$data, 'detail', detail)
+        requestAnimationFrame(this.setTime)
+      } else {
+        this.$router.replace({ name: 'index' })
       }
-      requestAnimationFrame(this.setTime)
     }
   }
 </script>
@@ -123,6 +147,10 @@
         border-radius: 3px;
         color: #fff;
         text-align: center;
+        &.disabled
+          border: 1px solid #ccc;
+          background-color: #ccc;
+          color: #999;
     .comments
       margin-top: 10px;
       padding: 10px;

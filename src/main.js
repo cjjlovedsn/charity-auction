@@ -2,10 +2,10 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 import App from './App'
-import router from './router'
+import {router, titles} from './router'
 import Axios from './config/axios-config'
 import moment from 'moment'
-import { Lazyload, Swipe, SwipeItem, InfiniteScroll, Spinner, Field, DatetimePicker, Header } from 'mint-ui'
+import { Lazyload, Swipe, SwipeItem, InfiniteScroll, Spinner, Field, DatetimePicker, Header, Loadmore, Popup, Button } from 'mint-ui'
 import 'mint-ui/lib/style.css'
 import '../static/normalize.css'
 import './config/common.styl'
@@ -27,6 +27,14 @@ Vue.component(Spinner.name, Spinner)
 Vue.component(Field.name, Field)
 Vue.component(DatetimePicker.name, DatetimePicker)
 Vue.component(Header.name, Header)
+Vue.component(Loadmore.name, Loadmore)
+Vue.component(Popup.name, Popup)
+Vue.component(Button.name, Button)
+
+router.beforeEach((to, from, next) => {
+  document.title = to.params.title || to.query.title || titles[to.name] || to.name || ''
+  next()
+})
 
 moment.locale('zh-cn')
 Vue.filter('mmt', (value, fmtStr) => {

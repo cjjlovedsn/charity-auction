@@ -38,6 +38,10 @@ module.exports = {
         pathRewrite: {
           '^/api': ''
         }
+      },
+      '/index.php': {
+        target: 'http://47.94.241.38',
+        changeOrigin: true
       }
     },
     // CSS Sourcemaps off by default because relative paths are "buggy"

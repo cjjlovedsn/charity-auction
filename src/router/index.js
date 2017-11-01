@@ -3,14 +3,16 @@ import Router from 'vue-router'
 import Index from '@/pages/index'
 import Details from '@/pages/details'
 import Edit from '@/pages/edit'
+import List from '@/pages/list'
 
 Vue.use(Router)
 
-export default new Router({
+const router = new Router({
+// mode: 'history',
   routes: [
     {
       path: '/',
-      name: 'Index',
+      name: 'index',
       component: Index,
       meta: {isKeepAlive: true}
     }, {
@@ -21,6 +23,10 @@ export default new Router({
       path: '/edit',
       name: 'edit',
       component: Edit
+    }, {
+      path: '/list',
+      name: 'list',
+      component: List
     }
   ],
   scrollBehavior (to, from, savedPosition) {
@@ -37,3 +43,12 @@ export default new Router({
     }
   }
 })
+
+const titles = {
+  index: '拍卖 - MaxInsight',
+  details: '拍品详情',
+  edit: '拍品编辑',
+  list: '拍品列表'
+}
+
+export { router, titles }

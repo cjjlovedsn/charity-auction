@@ -85,7 +85,7 @@ axios.interceptors.response.use(function (response) {
   return Promise.reject(error)
 })
 
-axios.defaults.baseURL = location.port === '8080' ? '/api' : ''
+// axios.defaults.baseURL = location.port === '8080' ? '/api' : ''
 
 axios.install = (Vue) => {
   Vue.prototype.$http = axios
