@@ -15,9 +15,11 @@
     "lint": "eslint --ext .js,.vue src test/unit/specs test/e2e/specs"
   },
   "dependencies": {
+    "alloytouch": "^0.2.5",
     "axios": "^0.16.2",
     "mint-ui": "^2.2.9",
     "moment": "^2.19.1",
+    "vant": "^0.10.5",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1"
   },

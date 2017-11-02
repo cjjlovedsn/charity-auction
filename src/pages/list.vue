@@ -1,7 +1,10 @@
 <template>
   <div class="container">
-    <mt-header title="拍品一览"></mt-header>
-    <router-link tag="div" class="add-item" :to="{name: 'edit', params: {add: true}}"><span>+添加拍品</span></router-link>
+    <mt-header title="拍品一览" fixed>
+      <router-link to="/" slot="left">
+        <mt-button icon="back">首页</mt-button>
+      </router-link>
+    </mt-header>
     <mt-loadmore :bottom-method="loadMore" :bottom-all-loaded="allLoaded" ref="loadmore" @bottom-status-change="pulldownEvent">
       <ul class="list">
         <li v-for="(item, index) in list">
@@ -25,12 +28,12 @@
         <span v-show="bottomStatus === 'loading'">Loading...</span>
       </div>
     </mt-loadmore>
-    
+    <router-link tag="div" class="add-item" :to="{name: 'edit', params: {add: true}}"><span>+添加拍品</span></router-link>
   </div>
 </template>
 
 <script>
-  import { MessageBox } from 'mint-ui'
+  import { MessageBox, Toast } from 'mint-ui'
   export default {
     name: 'list',
     data () {
@@ -43,7 +46,7 @@
     methods: {
       loadMore () {
         this.allLoaded = true // 禁止上拉加载
-        this.$http.get('/index.php/auction/editauction/editAuctionLists').then(res => {
+        this.$http.get('/index.php/auction/editauction/editAuctionLists?' + +new Date()).then(res => {
           if (location.port === '8080') {
             res.data.forEach(function (item, index) {
               if (item.item_img_path) {
@@ -69,11 +72,26 @@
           showCancelButton: true
         }).then(type => {
           if (type === 'confirm') {
-            console.log('删除成功', id)
-            let index = this.list.findIndex(function (item) {
-              return item.item_id === id
+            this.$http.get('/index.php/auction/editauction/delete', {
+              params: {
+                item_id: id
+              }
+            }).then(res => {
+              let data = res.data
+              let msg = typeof data.rows === 'string' ? data.rows : '操作失败'
+              if (data.success) {
+                msg = '删除成功'
+                let index = this.list.findIndex(function (item) {
+                  return item.item_id === id
+                })
+                this.list.splice(index, 1)
+              }
+              Toast({
+                message: msg,
+                position: 'middle',
+                duration: 2000
+              })
             })
-            this.list.splice(index, 1)
           }
         })
       }
@@ -89,7 +107,7 @@
     text-align: left;
     .add-item
       position: fixed;
-      padding: 10px;
+      bottom: 0;
       width: 100%;
       height: 100px;
       color: #fff;
@@ -103,7 +121,7 @@
         background-color: #33a537;
         border-radius: 5px;
     .list
-      margin-top: 120px;
+      margin: 120px 0;
       li
         display: flex;
         margin: 20px 0;
@@ -114,6 +132,9 @@
         border-bottom: 1px solid #eee;
         .img-box
           flex: 1;
+          height: 140px;
+          line-height: 140px;
+          overflow: auto;
         .detail
           flex: 4;
         .tools

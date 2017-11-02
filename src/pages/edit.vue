@@ -1,13 +1,18 @@
 <template>
   <div class="edit-container">
-    <mt-header title="拍品编辑"></mt-header>
+    <mt-header :title="defaultData.item_name || '拍品编辑'" fixed>
+      <router-link to="/list" slot="left">
+        <mt-button icon="back">返回</mt-button>
+      </router-link>
+    </mt-header>
     <form action="/index.php/auction/EditAuction/upload" method="post" @submit="upload" enctype="multipart/form-data" name="edit">
-      <mt-field label="拍品名称" placeholder="请输入拍品名称" :attr="{name: 'name'}" v-model="formData.name"></mt-field>
-      <mt-field label="拍品描述" type="textarea" placeholder="请输入拍品描述" v-model="formData.remark" :attr="{name: 'remark', style: 'resize: none'}"></mt-field>
+      <input type="hidden" name="item_id" id="" :value="formData.item_id" />
+      <mt-field label="拍品名称" placeholder="请输入拍品名称" :attr="{name: 'name'}" v-model="formData.item_name"></mt-field>
+      <mt-field label="拍品描述" type="textarea" placeholder="请输入拍品描述" v-model="formData.item_remark" :attr="{name: 'remark', style: 'resize: none'}"></mt-field>
       <mt-field label="拍品底价(￥)" type="number" :attr="{name: 'init_price', min: 0, step: formData.lowest_price}" v-model="formData.init_price"></mt-field>
-      <mt-field label="最低加价(￥)" type="number" :attr="{name: 'lowest_price', min: 0}" v-model="formData.lowest_price"></mt-field>
+      <!--<mt-field label="最低加价(￥)" type="number" :attr="{name: 'lowest_price', min: 0}" v-model="formData.lowest_price"></mt-field>-->
       <mt-field label="截止时间" @click.native="openPicker" readonly :value="formatEndTime(endDate)" :attr="{name: 'end_time'}"></mt-field>
-      <mt-datetime-picker ref="picker" type="datetime" v-model="endDate" @confirm=""></mt-datetime-picker>
+      <mt-datetime-picker ref="picker" type="datetime" v-model="endDate" @confirm="" year-format="{value} 年" month-format="{value} 月" date-format="{value} 日" hour-format="{value} 时" minute-format="{value} 分"></mt-datetime-picker>
     	<mt-field label="拍品照片">
     	  <input type="file" name="file" id="" value="" v-on:change="uploadImg" multiple="multiple" accept="image/*" />
     	</mt-field>
@@ -25,32 +30,30 @@
 
 <script>
   import { Toast, MessageBox } from 'mint-ui'
+  import _ from 'lodash'
   const defaultImg = require(`@/assets/error.png`)
   export default {
     name: 'edit',
     data () {
       return {
         defaultData: {
-          name: '',
-          remark: '',
+          item_name: '',
+          item_remark: '',
           init_price: 0,
-          endtime: '',
-          lowest_price: 1
+          endtime: ''
         },
         formData: {
-          name: '',
-          remark: '',
+          item_name: '',
+          item_remark: '',
           init_price: 0,
-          endtime: '',
-          lowest_price: 1
+          endtime: ''
         },
         endDate: new Date(),
         preImgs: [defaultImg],
         rule: {
-          name: '拍品名称不能为空',
-          remark: '请输入拍品描述',
+          item_name: '拍品名称不能为空',
+          item_remark: '请输入拍品描述',
           init_price: '请输入起拍价',
-          lowest_price: '请输入最低加价金额',
           endtime: '请输入拍卖截止时间'
         }
       }
@@ -84,13 +87,13 @@
           })
         }
       },
-      openPicker () {
+      openPicker (e) {
         this.$refs.picker.open()
       },
       valide (callback) {
         let isValid = false
         for (let k in this.formData) {
-          if (this.formData[k] === '') {
+          if (this.rule[k] && this.formData[k] === '') {
             callback && callback(k)
             isValid = true
             break
@@ -117,6 +120,8 @@
         }
         if (isValid) {
           e.preventDefault()
+        } else {
+          console.log(1)
         }
       }
     },
@@ -147,10 +152,9 @@
       item = detail || item
       if (item) {
         detail && sessionStorage.setItem('item', JSON.stringify(detail))
-        this.formData.name = this.defaultData.name = item.item_name
-        this.formData.remark = this.defaultData.remark = item.item_remark
-        this.formData.init_price = this.defaultData.init_price = item.init_price
-        this.formData.endtime = this.defaultData.endtime = this.endDate = this.$moment(item.endtime).format('YYYY-MM-DD HH:mm')
+        item.endtime = this.$moment(item.endtime).format('YYYY-MM-DD HH:mm')
+        this.$set(this.$data, 'formData', _.clone(item))
+        this.$set(this.$data, 'defaultData', _.clone(item))
         this.preImgs[0] = item.item_img_path
       }
     }
@@ -162,6 +166,8 @@
   .edit-container
     height: 100%;
     background-color: #fff;
+    form[name=edit]
+      margin-top: 80px;
     .preview
       margin: 0 auto;
       width: 600px;

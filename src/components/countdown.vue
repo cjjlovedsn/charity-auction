@@ -71,4 +71,5 @@
     color: #666;
     border-radius: 4px;
     text-align: left;
+    line-height: 1.5;
 </style>

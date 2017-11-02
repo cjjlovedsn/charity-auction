@@ -13,8 +13,7 @@ const router = new Router({
     {
       path: '/',
       name: 'index',
-      component: Index,
-      meta: {isKeepAlive: true}
+      component: Index
     }, {
       path: '/details',
       name: 'details',

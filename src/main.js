@@ -7,8 +7,10 @@ import Axios from './config/axios-config'
 import moment from 'moment'
 import { Lazyload, Swipe, SwipeItem, InfiniteScroll, Spinner, Field, DatetimePicker, Header, Loadmore, Popup, Button } from 'mint-ui'
 import 'mint-ui/lib/style.css'
+import 'vant/lib/vant-css/index.css'
 import '../static/normalize.css'
 import './config/common.styl'
+import AlloyTouch from 'alloytouch'
 
 Vue.config.productionTip = false
 
@@ -43,6 +45,19 @@ Vue.filter('mmt', (value, fmtStr) => {
     value = /^\d+$/.test(value) ? parseInt(value) : value
   }
   return moment(value).format(fmt)
+})
+
+Vue.directive('tap', {
+  inserted (el, binding) {
+    let alloyTouch = new AlloyTouch({
+      touch: el,
+      tap: binding.value
+    })
+    el.alloyTouch = alloyTouch
+  },
+  unbind (el) {
+    el.alloyTouch = null
+  }
 })
 
 Object.assign(Vue.prototype, {
