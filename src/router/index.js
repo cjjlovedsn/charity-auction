@@ -4,6 +4,7 @@ import Index from '@/pages/index'
 import Details from '@/pages/details'
 import Edit from '@/pages/edit'
 import List from '@/pages/list'
+import Notice from '@/pages/notice'
 
 Vue.use(Router)
 
@@ -26,6 +27,10 @@ const router = new Router({
       path: '/list',
       name: 'list',
       component: List
+    }, {
+      path: '/notice',
+      name: 'notice',
+      component: Notice
     }
   ],
   scrollBehavior (to, from, savedPosition) {
@@ -47,7 +52,8 @@ const titles = {
   index: '拍卖 - MaxInsight',
   details: '拍品详情',
   edit: '拍品编辑',
-  list: '拍品列表'
+  list: '拍品列表',
+  notice: '公告'
 }
 
 export { router, titles }

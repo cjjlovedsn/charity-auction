@@ -7,12 +7,15 @@
       </router-link>
     </mt-header>
       <div class="goods-detail">
-        <div class="img-box">
-          <img :src="detail.item_img_path" v-tap="showImagePreview"/>
-        </div>
+        <mt-swipe :auto="6000" class="img-box" :style="{height: maxHeight}">
+          <mt-swipe-item v-for="(item, index) in detail.item_img_path" :key="index" class="img-item" :style="{lineHeight: maxHeight}">
+            <img :src="item" v-tap="showImagePreview" ref="pic"/>
+          </mt-swipe-item>
+        </mt-swipe>
         <div class="detail-main"  v-show="!showBidModal">
           <div class="title">{{ detail.item_name }}</div>
           <div class="sub-title">{{ detail.item_remark }}</div>
+          <div class="owner-name"><span>捐赠者：{{ detail.owner_name }}</span></div>
           <div class="base-price"><span>底价：</span><span class="price">￥<i>{{ detail.init_price }}</i></span></div>
           <div class="current-price"><span>当前竞拍价：</span><span class="price">￥ <i>{{ detail.max_price }}</i></span></div>
           <countdown title="距离结束：" :time="time" :style="{display: 'flex'}"></countdown>
@@ -22,19 +25,7 @@
       </div>
       <div class="comments">
         <div class="comt-title">竞价列表</div>
-        <ul class="comt-list" v-infinite-scroll="loadComt" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="disableCheck" >
-          <li class="comt-item">
-            <div class="nickname">鹅粒思</div>
-            <div class="bid">￥10000</div>
-            <div class="comt-content">还有更高的吗！！！</div>
-            <div class="comt-date">2017-10-24</div>
-          </li>
-          <li class="comt-item">
-            <div class="nickname">秋刀鱼</div>
-            <div class="bid">￥1000</div>
-            <div class="comt-content">很不错啊！！！</div>
-            <div class="comt-date">2017-10-24</div>
-          </li>
+        <ul class="comt-list" v-infinite-scroll="loadComt" infinite-scroll-disabled="loadDisabled" infinite-scroll-distance="10" >
           <li v-for="(item, index) in comtList" class="comt-item">
             <div class="nickname">{{item.username}}</div>
             <div class="bid">${{item.bid_price}}</div>
@@ -65,8 +56,9 @@
         loading: false,
         now: new Date(),
         showBidModal: false,
-        disableCheck: false,
-        flag: false
+        loadDisabled: false,
+        flag: false,
+        maxHeight: 280
       }
     },
     computed: {
@@ -80,6 +72,7 @@
     methods: {
       loadComt () {
         this.loading = true
+        this.loadDisabled = true
         this.$http.get('/index.php/auction/index/lists', {
           params: {
             item_id: this.detail.item_id
@@ -88,14 +81,12 @@
           this.loading = false
           if (res.data.length) {
             this.$set(this.$data, 'comtList', res.data)
-//          this.comtList.push(...res.data)
-          } else {
-            this.disableCheck = true
+//          this.loadDisabled = false
           }
         }).catch(err => {
           console.log(err)
           this.loading = false
-          this.disableCheck = true
+          this.loadDisabled = false
         })
       },
       setTime () {
@@ -113,7 +104,7 @@
         this.showBidModal = false
       },
       showImagePreview (e) {
-        ImagePreview([this.detail.item_img_path])
+        ImagePreview(this.detail.item_img_path)
       },
       bitSubmit ({ price, message }) {
         console.log(message)
@@ -149,6 +140,13 @@
           })
           this.flag = false
         })
+      },
+      visited () {
+        this.$http.get('/index.php/auction/index/visitAdd', {
+          params: {
+            item_id: this.detail.item_id
+          }
+        })
       }
     },
     components: {
@@ -157,10 +155,20 @@
     },
     mounted () {
       let detail = this.$route.params.item
-      detail && sessionStorage.setItem('item', JSON.stringify(detail))
-      detail = detail || JSON.parse(sessionStorage.getItem('item') || null)
+      detail && sessionStorage.setItem('detail', JSON.stringify(detail))
+      detail = detail || JSON.parse(sessionStorage.getItem('detail') || null)
       if (detail) {
         this.$set(this.$data, 'detail', detail)
+        this.$nextTick(() => {
+          let pics = this.$refs.pic
+          if (pics.length) {
+            let cw = document.body.clientWidth - 40
+            this.maxHeight = pics.reduce((acc, img) => {
+              return Math.max(acc, cw * img.height / img.width || 0)
+            }, 0) + 'px'
+          }
+        })
+        this.visited()
         requestAnimationFrame(this.setTime)
       } else {
         this.$router.replace({ name: 'index' })
@@ -189,10 +197,15 @@
       border-radius: 5px;
       .img-box
         width: 100%;
+        height: 600px;
         padding: 20px;
         text-align: center;
-        img
-          width: 90%;
+        background-color: #f8f8f8;
+        .img-item
+          line-height: 600px;
+          overflow: hidden;
+          img
+            width: 100%;
       div
         padding: 10px;
       .title

@@ -1,7 +1,7 @@
 <template>
   <div class="edit-container">
     <mt-header :title="defaultData.item_name || '拍品编辑'" fixed>
-      <router-link to="/list" slot="left">
+      <router-link :to="backUrl" slot="left">
         <mt-button icon="back">返回</mt-button>
       </router-link>
     </mt-header>
@@ -9,12 +9,13 @@
       <input type="hidden" name="item_id" id="" :value="formData.item_id" />
       <mt-field label="拍品名称" placeholder="请输入拍品名称" :attr="{name: 'name'}" v-model="formData.item_name"></mt-field>
       <mt-field label="拍品描述" type="textarea" placeholder="请输入拍品描述" v-model="formData.item_remark" :attr="{name: 'remark', style: 'resize: none'}"></mt-field>
+      <mt-field label="捐赠者" placeholder="请输入捐赠者姓名" :attr="{name: 'owner_name'}" v-model="formData.owner_name"></mt-field>
       <mt-field label="拍品底价(￥)" type="number" :attr="{name: 'init_price', min: 0, step: formData.lowest_price}" v-model="formData.init_price"></mt-field>
       <!--<mt-field label="最低加价(￥)" type="number" :attr="{name: 'lowest_price', min: 0}" v-model="formData.lowest_price"></mt-field>-->
       <mt-field label="截止时间" @click.native="openPicker" readonly :value="formatEndTime(endDate)" :attr="{name: 'end_time'}"></mt-field>
       <mt-datetime-picker ref="picker" type="datetime" v-model="endDate" @confirm="" year-format="{value} 年" month-format="{value} 月" date-format="{value} 日" hour-format="{value} 时" minute-format="{value} 分"></mt-datetime-picker>
     	<mt-field label="拍品照片">
-    	  <input type="file" name="file" id="" value="" v-on:change="uploadImg" multiple="multiple" accept="image/*" />
+    	  <input type="file" name="file[]" id="" value="" v-on:change="uploadImg" multiple="multiple" accept="image/*" />
     	</mt-field>
   	  <mt-swipe :auto="0" class="preview">
   	    <mt-swipe-item v-for="(item, index) in preImgs" :key="index" class="preview-item">
@@ -40,13 +41,15 @@
           item_name: '',
           item_remark: '',
           init_price: 0,
-          endtime: ''
+          endtime: '',
+          owner_name: '匿名'
         },
         formData: {
           item_name: '',
           item_remark: '',
           init_price: 0,
-          endtime: ''
+          endtime: '',
+          owner_name: '匿名'
         },
         endDate: new Date(),
         preImgs: [defaultImg],
@@ -55,7 +58,8 @@
           item_remark: '请输入拍品描述',
           init_price: '请输入起拍价',
           endtime: '请输入拍卖截止时间'
-        }
+        },
+        backUrl: '/'
       }
     },
     computed: {
@@ -120,14 +124,12 @@
         }
         if (isValid) {
           e.preventDefault()
-        } else {
-          console.log(1)
         }
       }
     },
     beforeRouteLeave (to, from, next) {
       for (let k in this.defaultData) {
-        if (this.formData[k] !== this.defaultData[k]) {
+        if (this.defaultData[k] && this.formData[k] !== this.defaultData[k]) {
           return MessageBox({
             title: '提示',
             message: '当前编辑的信息未提交，是否放弃修改？',
@@ -146,16 +148,19 @@
       let item = JSON.parse(sessionStorage.getItem('item') || null)
       let add = this.$route.params.add
       if (add) {
+        this.backUrl = '/list'
         sessionStorage.removeItem('item')
         return
       }
       item = detail || item
       if (item) {
+        this.backUrl = '/list'
         detail && sessionStorage.setItem('item', JSON.stringify(detail))
         item.endtime = this.$moment(item.endtime).format('YYYY-MM-DD HH:mm')
-        this.$set(this.$data, 'formData', _.clone(item))
-        this.$set(this.$data, 'defaultData', _.clone(item))
-        this.preImgs[0] = item.item_img_path
+        _.merge(this.formData, item)
+        _.merge(this.defaultData, item)
+        this.preImgs.splice(0)
+        this.preImgs.push(...item.item_img_path)
       }
     }
   }

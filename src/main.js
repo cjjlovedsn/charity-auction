@@ -5,16 +5,20 @@ import App from './App'
 import {router, titles} from './router'
 import Axios from './config/axios-config'
 import moment from 'moment'
-import { Lazyload, Swipe, SwipeItem, InfiniteScroll, Spinner, Field, DatetimePicker, Header, Loadmore, Popup, Button } from 'mint-ui'
+import Mint, { Lazyload, InfiniteScroll } from 'mint-ui'
 import 'mint-ui/lib/style.css'
+import { NoticeBar } from 'vant'
 import 'vant/lib/vant-css/index.css'
 import '../static/normalize.css'
 import './config/common.styl'
-import AlloyTouch from 'alloytouch'
+import Touch from './config/touch'
+import CircleMenu from 'vue-circle-menu'
 
 Vue.config.productionTip = false
 
 Vue.use(Axios)
+
+Vue.use(Mint)
 Vue.use(Lazyload, {
   preload: 1.3,
   error: require(`@/assets/error.png`),
@@ -23,15 +27,11 @@ Vue.use(Lazyload, {
 })
 Vue.use(InfiniteScroll)
 
-Vue.component(Swipe.name, Swipe)
-Vue.component(SwipeItem.name, SwipeItem)
-Vue.component(Spinner.name, Spinner)
-Vue.component(Field.name, Field)
-Vue.component(DatetimePicker.name, DatetimePicker)
-Vue.component(Header.name, Header)
-Vue.component(Loadmore.name, Loadmore)
-Vue.component(Popup.name, Popup)
-Vue.component(Button.name, Button)
+Vue.use(Touch)
+
+Vue.component(NoticeBar.name, NoticeBar)
+
+Vue.component('circle-menu', CircleMenu)
 
 router.beforeEach((to, from, next) => {
   document.title = to.params.title || to.query.title || titles[to.name] || to.name || ''
@@ -45,19 +45,6 @@ Vue.filter('mmt', (value, fmtStr) => {
     value = /^\d+$/.test(value) ? parseInt(value) : value
   }
   return moment(value).format(fmt)
-})
-
-Vue.directive('tap', {
-  inserted (el, binding) {
-    let alloyTouch = new AlloyTouch({
-      touch: el,
-      tap: binding.value
-    })
-    el.alloyTouch = alloyTouch
-  },
-  unbind (el) {
-    el.alloyTouch = null
-  }
 })
 
 Object.assign(Vue.prototype, {

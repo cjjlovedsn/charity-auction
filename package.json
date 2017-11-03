@@ -21,6 +21,7 @@
     "moment": "^2.19.1",
     "vant": "^0.10.5",
     "vue": "^2.5.2",
+    "vue-circle-menu": "^1.1.1",
     "vue-router": "^3.0.1"
   },
   "devDependencies": {

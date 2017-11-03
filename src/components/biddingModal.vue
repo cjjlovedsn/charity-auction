@@ -4,11 +4,12 @@
       <div class="header">竞拍出价</div>
       <div class="content">
         <mt-field label="出价(￥)：" type="number" :attr="{name: 'price', min: 0}" v-model.trim="price" @blur.native.capture="limitNumber" @focus.native.capture="selectAll"></mt-field>
-        <mt-field label="留言：" type="textarea" placeholder="" v-model="message" @focus.native.capture="selectAll" :attr="{name: 'message', style: 'resize: none'}"></mt-field>
+        <mt-field label="留言：" type="textarea" placeholder="" v-model="message" @focus.native.capture="selectAll" :attr="{name: 'message', style: 'resize: none', maxLength: max}"></mt-field>
+        <span class="limit">字数：{{currentNum}}/{{max}}</span>
       </div>
       <div class="footer pull-right">
         <mt-button size="small" type="primary" @click.native.capture="confirmEvent" :style="{backgroundColor: '#138a5c'}">确定</mt-button>
-        <mt-button size="small" type="default"@click.native.capture="cancelEvent">取消</mt-button>
+        <mt-button size="small" type="default" @click.native.capture="cancelEvent">取消</mt-button>
       </div>
     </div>
   </transition>
@@ -40,7 +41,8 @@
     data () {
       return {
         price: 0,
-        message: ''
+        message: '',
+        max: 200
       }
     },
     watch: {
@@ -52,6 +54,12 @@
         }
       }
     },
+    computed: {
+      currentNum () {
+        let n = this.max - this.message.length
+        return n > 0 ? n : 0
+      }
+    },
     methods: {
       selectAll ({ target }) {
         setTimeout(() => {
@@ -60,7 +68,6 @@
       },
       limitNumber ({ target }) {
         let lowestValue = this.base + this.lowest
-        console.log(lowestValue)
         if (!(target.value > lowestValue)) {
           setTimeout(() => {
             target.value = lowestValue
@@ -103,6 +110,8 @@
   .content
     textarea.mint-field-core
       border: 1px solid #ccc;
+    .limit
+      margin-left: 20px;
   .footer
     padding: 20px;
     button
