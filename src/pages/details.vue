@@ -43,6 +43,7 @@
 </template>
 
 <script>
+  import { getToken } from '@/utils/auth'
   import countdown from '@/components/countdown'
   import biddingModal from '@/components/biddingModal'
   import { ImagePreview } from 'vant'
@@ -98,6 +99,9 @@
       openBidModal () {
         if (this.time > 0) {
           this.showBidModal = true
+          if (!getToken()) {
+            this.$router.push('/login')
+          }
         }
       },
       hideBidModal () {

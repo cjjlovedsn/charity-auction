@@ -149,6 +149,7 @@
       }
     },
     mounted () {
+//    this.loadMore()
     }
   }
 </script>

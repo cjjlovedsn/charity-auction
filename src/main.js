@@ -7,7 +7,7 @@ import Axios from './config/axios-config'
 import moment from 'moment'
 import Mint, { Lazyload, InfiniteScroll } from 'mint-ui'
 import 'mint-ui/lib/style.css'
-import { NoticeBar } from 'vant'
+import { NoticeBar, Icon } from 'vant'
 import 'vant/lib/vant-css/index.css'
 import '../static/normalize.css'
 import './config/common.styl'
@@ -30,6 +30,7 @@ Vue.use(InfiniteScroll)
 Vue.use(Touch)
 
 Vue.component(NoticeBar.name, NoticeBar)
+Vue.component(Icon.name, Icon)
 
 Vue.component('circle-menu', CircleMenu)
 

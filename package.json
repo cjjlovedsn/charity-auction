@@ -17,6 +17,7 @@
   "dependencies": {
     "alloytouch": "^0.2.5",
     "axios": "^0.16.2",
+    "js-cookie": "^2.2.0",
     "mint-ui": "^2.2.9",
     "moment": "^2.19.1",
     "vant": "^0.10.5",
