@@ -53,7 +53,6 @@ export default {
         let rec = touch.getBoundingClientRect()
         let r = document.body.clientWidth - rec.width
         let b = document.body.clientHeight - rec.height
-        console.log(rec)
         let alloyTouch = new AlloyTouch({
           touch,
           touchStart (e) {

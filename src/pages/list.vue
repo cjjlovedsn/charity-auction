@@ -7,20 +7,22 @@
     </mt-header>
     <mt-loadmore :bottom-method="loadMore" :bottom-all-loaded="allLoaded" ref="loadmore" @bottom-status-change="pulldownEvent">
       <ul class="list">
-        <v-longtap tag="li" :method="deleteItem" exclude="" :param="index" v-for="(item, index) in list" :key="index">
-          <router-link :to="{ name: 'edit', params: {detail: item }}">
-            <div class="img-box">
-              <img src="" v-lazy="item.item_img_path[0]"/>
-            </div>
-            <div class="detail">
-              <div class="name">名称：{{ item.item_name }}</div>
-              <div class="desc">详情：{{ item.item_remark }}</div>
-              <div class="init_price">底价：{{ item.init_price }}</div>
-              <div class="endtime">截止：{{ item.endtime }}</div>
-            </div>
-          </router-link>
-          <mt-switch v-model="item.is_use" @change="changeEvent($event, item)"></mt-switch>
-        </v-longtap>
+        <li v-for="(item, index) in list" :key="index">
+          <mt-cell-swipe :right="[{content: '删除',style: {backgroundColor: '#f40',color: '#fff'},handler () {deleteItem(item.item_id, index)}}]">
+            <router-link :to="{ name: 'edit', params: {detail: item }}">
+              <div class="img-box">
+                <img src="" v-lazy="item.item_img_path[0]"/>
+              </div>
+              <div class="detail">
+                <div class="name">名称：{{ item.item_name }}</div>
+                <div class="desc">详情：{{ item.item_remark }}</div>
+                <div class="init_price">底价：{{ item.init_price }}</div>
+                <div class="endtime">截止：{{ item.endtime }}</div>
+              </div>
+            </router-link>
+            <mt-switch v-model="item.is_use" @change="changeEvent($event, item)"></mt-switch>
+          </mt-cell-swipe>
+        </li>
       </ul>
       <div slot="bottom" class="mint-loadmore-bottom">
         <span v-show="bottomStatus !== 'loading'"><span :class="{ 'rotate': bottomStatus === 'drop' }">↑</span> 加载更多</span>
@@ -59,7 +61,7 @@
           duration
         })
       },
-      deleteItem (event, index) {
+      deleteItem (id, index) {
         if (this.loading) return
         MessageBox({
           title: '提示',
@@ -69,9 +71,7 @@
           if (type === 'confirm') {
             this.loading = true
             this.$http.get('/index.php/auction/editauction/delete', {
-              params: {
-                item_id: this.list[index].item_id
-              }
+              params: { item_id: id }
             }).then(res => {
               let data = res.data
               if (data.success) {
@@ -177,9 +177,7 @@
       li
         display: flex;
         margin: 20px 0;
-        padding: 10px;
         background-color: #fff;
-        border-bottom: 1px solid #eee;
         a
           display: flex;
           flex: 5;
@@ -192,6 +190,13 @@
             overflow: auto;
           .detail
             flex: 4;
+            .desc
+              max-width: 440px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+        .mint-cell
+          padding: 10px;
       label  
         flex: 1;
     img

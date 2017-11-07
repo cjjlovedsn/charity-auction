@@ -6,10 +6,12 @@
       </router-link>
     </mt-header>
     <ul class="notice-list">
-      <v-longtap tag="li" :method="deleteNotice" exclude="input|textarea|label" :param="index"  v-for="(item, index) in list" :key="index" class="notice-item" :class="{disabled: item.is_use}" >
-        <mt-field label="公告内容：" type="textarea" :attr="{style: 'resize: none'}" :disabled="item.is_use" :style="{backgroundColor: 'transparent'}" v-model="item.notice_content"></mt-field>
-        <mt-switch v-model="item.is_use" @change="changeEvent($event, item)"></mt-switch>
-      </v-longtap>
+      <li v-for="(item, index) in list" :key="index" class="notice-item" :class="{disabled: item.is_use}">
+        <mt-cell-swipe :right="[{content: '删除',style: {backgroundColor: '#f40',color: '#fff'},handler () {deleteNotice(item.id, index)}}]">
+          <mt-field label="公告内容：" type="textarea" :attr="{style: 'resize: none'}" :disabled="item.is_use" :style="{backgroundColor: 'transparent'}" v-model="item.notice_content"></mt-field>
+          <mt-switch v-model="item.is_use" @change="changeEvent($event, item)"></mt-switch>
+        </mt-cell-swipe>
+      </li>
     </ul>
     <mt-button size="small" type="default" @click.native.capture="addNotice">新增一条公告</mt-button>
   </div>
@@ -65,15 +67,14 @@
           is_use: false
         })
       },
-      deleteNotice (event, index) {
+      deleteNotice (id, index) {
         MessageBox({
           message: '确定删除吗？',
           showCancelButton: true
         }).then(type => {
           if (type === 'confirm') {
-            this.loading = true // 加载中
-            let id = this.list[index].id
             if (id) {
+              this.loading = true // 加载中
               this.$http('/index.php/auction/notice/noticeDelelte', {
                 params: { id }
               }).then(res => {
@@ -160,9 +161,10 @@
         display: flex;
         justify-content: space-between;
         margin: 10px 0;
-        padding-right: 20px;
         border: 1px dashed #ddd;
         background-color: rgba(210, 210, 200, .5);
         &.disabled
           background-color: #fff;
+        .mint-cell
+          background-color: transparent;
 </style>

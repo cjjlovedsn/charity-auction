@@ -12,7 +12,7 @@ const router = new Router({
 // mode: 'history',
   routes: [
     {
-      path: '/',
+      path: '*',
       name: 'index',
       component: Index
     }, {
@@ -34,17 +34,18 @@ const router = new Router({
     }
   ],
   scrollBehavior (to, from, savedPosition) {
-    if (savedPosition || typeof savedPosition === 'undefined') { // 从第二页返回首页时savePosition为undefined
-      // 只处理设置了路由元信息的组件
-      from.meta.isKeepAlive = typeof from.meta.isKeepAlive === 'undefined' ? undefined : false
-      to.meta.isKeepAlive = typeof to.meta.isKeepAlive === 'undefined' ? undefined : true
-      if (savedPosition) {
-        return savedPosition
-      }
-    } else {
-      from.meta.isKeepAlive = typeof from.meta.isKeepAlive === 'undefined' ? undefined : true
-      to.meta.isKeepAlive = typeof to.meta.isKeepAlive === 'undefined' ? undefined : false
-    }
+    return savedPosition || {x: 0, y: 0}
+//  if (savedPosition || typeof savedPosition === 'undefined') { // 从第二页返回首页时savePosition为undefined
+//    // 只处理设置了路由元信息的组件
+//    from.meta.isKeepAlive = typeof from.meta.isKeepAlive === 'undefined' ? undefined : false
+//    to.meta.isKeepAlive = typeof to.meta.isKeepAlive === 'undefined' ? undefined : true
+//    if (savedPosition) {
+//      return savedPosition
+//    }
+//  } else {
+//    from.meta.isKeepAlive = typeof from.meta.isKeepAlive === 'undefined' ? undefined : true
+//    to.meta.isKeepAlive = typeof to.meta.isKeepAlive === 'undefined' ? undefined : false
+//  }
   }
 })
 

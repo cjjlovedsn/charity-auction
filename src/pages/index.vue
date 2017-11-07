@@ -22,7 +22,7 @@
         </mt-loadmore>
         <circle-menu type="bottom" :number="2" circle="circle" btn :colors="colors" :style="{position: 'fixed', left: 0, bottom: '30%'}" v-drag>
           <router-link to="/edit" slot="item_1" style="font-size: 10px;color:#fff">捐赠</router-link>
-          <img :src="face" slot="item_2" style="width: 50%"/>
+          <img :src="face" slot="item_2" style="width: 50%" v-tap="login"/>
         </circle-menu>
   </div>
 </template>
@@ -43,7 +43,7 @@
         notice: '',
         speaker: require(`@/assets/speaker.png`),
         face: require(`@/assets/face.png`),
-        colors: ['rgb(19, 138, 92)', '#26a2ff', '#e2bf40', '#26a2ff', '#26a2ff']
+        colors: ['#138a5c', '#26a2ff', '#e2bf40', '#26a2ff', '#26a2ff']
       }
     },
     computed: {
@@ -95,6 +95,9 @@
       },
       pulldownEvent (status) {
         this.bottomStatus = status
+      },
+      login () {
+        console.log(arguments)
       }
     },
     components: {
