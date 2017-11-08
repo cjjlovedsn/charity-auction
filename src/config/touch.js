@@ -13,6 +13,7 @@ export default {
         checkParam(binding)
         let alloyTouch = new AlloyTouch({
           touch,
+          preventDefault: false,
           tap: binding.value
         })
         touch.alloyTouch = alloyTouch
@@ -59,9 +60,7 @@ export default {
             let target = e.touches[0]
             disX = target.clientX - touch.offsetLeft
             disY = target.clientY - touch.offsetTop
-            timer = setTimeout(function () {
-              move = true
-            }, 200)
+            move = true
           },
           touchMove (e) {
             if (move) {

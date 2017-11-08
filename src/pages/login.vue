@@ -80,11 +80,18 @@
               })
             }
             if (success) {
-              this.$router.go(-1)
+              this.$router.replace(this.fromPath || '/')
             }
           })
         }
       }
+    },
+    beforeRouteEnter (to, from, next) {
+      next(vm => {
+        if (from.path) {
+          vm.fromPath = from.path
+        }
+      })
     }
   }
 </script>

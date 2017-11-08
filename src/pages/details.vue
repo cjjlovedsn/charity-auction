@@ -27,7 +27,7 @@
         <div class="comt-title">竞价列表</div>
         <ul class="comt-list" v-infinite-scroll="loadComt" infinite-scroll-disabled="loadDisabled" infinite-scroll-distance="10" >
           <li v-for="(item, index) in comtList" class="comt-item">
-            <div class="nickname">{{item.username}}</div>
+            <div class="nickname">{{item.true_name}}</div>
             <div class="bid">${{item.bid_price}}</div>
             <div class="comt-content">{{item.message}}</div>
             <div class="comt-date">{{item.bid_date | mmt('YYYY-MM-DD HH:mm:ss')}}</div>
@@ -111,9 +111,11 @@
         ImagePreview(this.detail.item_img_path)
       },
       bitSubmit ({ price, message }) {
-        console.log(message)
         if (this.flag) return
         this.flag = true
+        if (!getToken()) {
+          this.$router.push('/login')
+        }
         this.$http.get('/index.php/auction/index/save', {
           params: {
             item_id: this.detail.item_id,
@@ -128,6 +130,7 @@
             msg = '出价成功'
             this.showBidModal = false
             this.disableCheck = false
+            this.$set(this.detail, 'max_price', price)
             this.loadComt()
           }
           Toast({
