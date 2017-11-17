@@ -13,6 +13,7 @@ import '../static/normalize.css'
 import './config/common.styl'
 import Touch from './config/touch'
 import CircleMenu from 'vue-circle-menu'
+import VueCropper from 'vue-cropper'
 
 Vue.config.productionTip = false
 
@@ -28,6 +29,8 @@ Vue.use(Lazyload, {
 Vue.use(InfiniteScroll)
 
 Vue.use(Touch)
+
+Vue.component('vueCropper', VueCropper)
 
 Vue.component(NoticeBar.name, NoticeBar)
 Vue.component(Icon.name, Icon)

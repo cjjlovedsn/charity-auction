@@ -13,15 +13,31 @@
       <mt-field label="拍品底价(￥)" type="number" :attr="{name: 'init_price', min: 0, step: formData.lowest_price}" v-model="formData.init_price"></mt-field>
       <!--<mt-field label="最低加价(￥)" type="number" :attr="{name: 'lowest_price', min: 0}" v-model="formData.lowest_price"></mt-field>-->
       <mt-field label="截止时间" @click.native="openPicker" readonly :value="formatEndTime(endDate)" :attr="{name: 'endtime'}"></mt-field>
-      <mt-datetime-picker ref="picker" type="datetime" v-model="endDate" @confirm="" year-format="{value} 年" month-format="{value} 月" date-format="{value} 日" hour-format="{value} 时" minute-format="{value} 分"></mt-datetime-picker>
+      <mt-datetime-picker ref="picker" type="datetime" v-model="endDate" year-format="{value} 年" month-format="{value} 月" date-format="{value} 日" hour-format="{value} 时" minute-format="{value} 分"></mt-datetime-picker>
     	<mt-field label="拍品照片">
-    	  <input type="file" name="file[]" id="" value="" v-on:change="uploadImg" multiple="multiple" accept="image/*" />
+    	  <input type="file" name="file[]" id="" value="" v-on:change="uploadImg" accept="image/*" />
     	</mt-field>
-  	  <mt-swipe :auto="0" class="preview">
-  	    <mt-swipe-item v-for="(item, index) in preImgs" :key="index" class="preview-item">
-  	      <img src="" v-lazy="item"/>
-  	    </mt-swipe-item>
-	    </mt-swipe>
+      <div class="update-img">
+        <ul class="img-list">
+          <li v-for="(img, index) in preImgs" :key="index">
+            <img :src="img" alt="图片预览">
+          </li>
+        </ul>
+        <div class="add-img">
+          <img src="~/@/assets/add.png" alt="添加">
+        </div>
+      </div>
+      <vueCropper
+        ref="cropper"
+        :img="preImgs[0]"
+        :outputSize="1"
+        :outputType="'png'"
+        :autoCrop="true"
+        :autoCropWidth="300"
+        :autoCropHeight="200"
+        :fixed="true"
+        :fixedNumber="[4, 3]"
+      ></vueCropper>
 	    <div class="footer">
         <mt-button size="large" type="primary" @click.native.capture="submit" >提交</mt-button>
         <mt-button size="large" type="default" @click.native.capture="cancel">取消</mt-button>
@@ -33,7 +49,6 @@
 <script>
   import { Toast, MessageBox, Indicator } from 'mint-ui'
   import _ from 'lodash'
-  const defaultImg = require(`@/assets/error.png`)
   const whiteList = ['item_img_path', 'endtime']
   export default {
     name: 'edit',
@@ -55,7 +70,7 @@
         },
         imgFiles: [],
         endDate: new Date(),
-        preImgs: [defaultImg],
+        preImgs: [],
         rule: {
           item_name: '拍品名称不能为空',
           item_remark: '请输入拍品描述',
@@ -110,6 +125,10 @@
       uploadImg ({target}) {
         let self = this
         let files = Array.from(target.files)
+        if (!/\.(gif|jpg|jpeg|png|bmp|GIF|JPG|PNG)$/.test(target.value)) {
+          this.msg('图片类型必须是.gif,jpeg,jpg,png,bmp中的一种')
+          return false
+        }
         this.imgFiles = files
         this.preImgs.splice(0)
         if (typeof FileReader === 'function') {
@@ -118,6 +137,7 @@
             fr.readAsDataURL(file)
             fr.onload = function () {
               self.preImgs.push(this.result)
+              self.$refs.cropper.startCrop()
               if (!self.isChanged) {
                 self.isChanged = true
               }
@@ -144,7 +164,7 @@
         isValide = this.valide(k => {
           this.msg(this.rule[k])
         })
-        if (isValide && this.preImgs[0] === defaultImg) {
+        if (isValide && !this.preImgs.length) {
           this.msg('请至少上传一张拍品照片')
           isValide = false
         }
