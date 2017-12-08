@@ -32,16 +32,12 @@ module.exports = {
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     proxyTable: {
-      '/api/': {
+      '/index.php/auction/index': {
         target: 'http://localhost:3000',
         changeOrigin: true,
         pathRewrite: {
-          '^/api': ''
+          '^/index.php/auction/index': ''
         }
-      },
-      '/index.php': {
-        target: 'http://47.94.241.38',
-        changeOrigin: true
       }
     },
     // CSS Sourcemaps off by default because relative paths are "buggy"
