@@ -32,7 +32,7 @@
             state: ''
           },
           password: {
-            reg: /^[a-zA-Z0-9]{6,20}$/,
+            reg: /^.+$/,
             state: ''
           }
         }
