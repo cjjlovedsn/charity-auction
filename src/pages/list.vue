@@ -100,13 +100,13 @@
             let data = res.data.map(function (val) {
               let imgPaths = val.item_img_path.match(/(\[[^\]]+\])/g)
               imgPaths = imgPaths ? JSON.parse(imgPaths[0]) : []
-              if (location.port === '8080') {
+              if (process.env.NODE_ENV === 'development') {
                 val.item_img_path = imgPaths.map(function (path) {
                   return `http://47.94.241.38${path}`
                 })
-              } else {
-                val.item_img_path = imgPaths
+                return val
               }
+              val.item_img_path = imgPaths
               return val
             })
             this.list.push(...data)
