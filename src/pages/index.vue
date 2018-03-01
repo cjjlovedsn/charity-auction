@@ -43,7 +43,8 @@
         notice: '',
         speaker: require(`@/assets/speaker.png`),
         face: require(`@/assets/face.png`),
-        colors: ['#138a5c', '#26a2ff', '#e2bf40', '#26a2ff', '#26a2ff']
+        colors: ['#138a5c', '#26a2ff', '#e2bf40', '#26a2ff', '#26a2ff'],
+        timer: null
       }
     },
     computed: {
@@ -54,10 +55,6 @@
       }
     },
     methods: {
-      setTime () {
-        this.now = new Date()
-        requestAnimationFrame(this.setTime)
-      },
       loadNotice () {
         this.$http.get('/index.php/auction/index/noticeLan?' + +new Date()).then(res => {
           if (_.isArray(res.data)) {
@@ -100,7 +97,12 @@
     mounted () {
       Indicator.open('加载中...')
       this.loadNotice()
-      requestAnimationFrame(this.setTime)
+      this.timer = setInterval(() => {
+        this.now = new Date()
+      }, 200)
+    },
+    destroyed () {
+      clearInterval(this.timer)
     }
   }
 </script>
@@ -141,6 +143,10 @@
           .title
             position: relative;
             margin: 10px 0;
+            white-space: nowrap;
+            padding-right: 50px;
+            overflow: hidden;
+            text-overflow ellipsis
             .visit-total
               position: absolute;
               top: 1em;
@@ -151,6 +157,7 @@
               text-align: center;
               color: #ccc;
               transform: scale(.8);
+              line-height 1
               &::before
                 content: '';
                 position: absolute;

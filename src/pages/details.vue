@@ -26,9 +26,9 @@
       <div class="comments">
         <div class="comt-title">竞价列表</div>
         <ul class="comt-list" v-infinite-scroll="loadComt" infinite-scroll-disabled="loadDisabled" infinite-scroll-distance="10" >
-          <li v-for="(item, index) in comtList" class="comt-item">
+          <li v-for="(item, index) in comtList" class="comt-item" :key="index">
             <div class="nickname">{{item.true_name}}</div>
-            <div class="bid">${{item.bid_price}}</div>
+            <div class="bid">￥{{item.bid_price}}</div>
             <div class="comt-content">{{item.message}}</div>
             <div class="comt-date">{{item.bid_date | mmt('YYYY-MM-DD HH:mm:ss')}}</div>
           </li>

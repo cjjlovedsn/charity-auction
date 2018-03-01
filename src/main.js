@@ -52,7 +52,6 @@ Vue.filter('mmt', (value, fmtStr) => {
 })
 
 Object.assign(Vue.prototype, {
-  fontSize: document.documentElement.clientWidth / 30,
   $moment: moment
 })
 

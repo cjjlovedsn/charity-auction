@@ -10,11 +10,23 @@
 <script>
 export default {
   name: 'app',
+  data () {
+    return {
+      width: document.documentElement.clientWidth
+    }
+  },
+  computed: {
+    fontSize () {
+      let fontSize = this.width / 30
+      fontSize = fontSize > 25 ? 25 : fontSize
+      return fontSize
+    }
+  },
   created () {
     let rootEl = document.documentElement
     rootEl.style.fontSize = this.fontSize + 'px'
     window.addEventListener('resize', () => {
-      this.fontSize = rootEl.clientWidth / 30
+      this.width = rootEl.clientWidth
       rootEl.style.fontSize = this.fontSize + 'px'
     })
   }
@@ -23,6 +35,8 @@ export default {
 
 <style>
 #app {
+  margin: 0 auto;
+  max-width: 768px;
   height: 100%;
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

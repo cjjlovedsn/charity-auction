@@ -20,12 +20,12 @@
       <div class="update-img">
         <ul class="img-list">
           <li v-for="(img, index) in preImgs" :key="index">
-            <img :src="img" alt="图片预览">
+            <img class="img" :src="img" alt="图片预览">
+          </li>
+          <li class="add-img" v-if="!preImgs.length">
+            <img src="~/@/assets/add.png" alt="添加">
           </li>
         </ul>
-        <div class="add-img">
-          <img src="~/@/assets/add.png" alt="添加">
-        </div>
       </div>
       <vueCropper
         ref="cropper"
@@ -254,8 +254,12 @@
         padding: 10px;
         line-height: 480px;
         overflow: auto;
-        img
+        .img
           width: 100%;
+    .img-list
+      padding 25px
+      img
+        width 100%
     .footer
       padding: 20px 0;
       width: 100%;

@@ -1,16 +1,26 @@
 <template>
     <div class="login">
       <div class="main">
-        <mt-header title="登录" :style="{backgroundColor: '#138a5c'}"></mt-header>
+        <!-- <mt-popup v-model="tipVisible" class="tip" popup-transition="popup-fade">
+          <div>
+            <h4>提示：</h4>
+            <p>帐号为员工姓名的拼音</p>
+            <p>密码为员工电脑的登陆密码</p>
+          </div>
+        </mt-popup> -->
+        <mt-header title="登录" :style="{backgroundColor: '#138a5c'}">
+          <!-- <mt-button slot="right" @click="showTip">
+            <span class="info">?</span>
+          </mt-button> -->
+        </mt-header>
         <div class="content">
-          <mt-field type="text" label="帐号" v-model="username" placeholder="请输入手机号" :state="rules.username.state"></mt-field>
+          <mt-field type="text" label="帐号" v-model="username" placeholder="请输入帐号" :state="rules.username.state"></mt-field>
           <mt-field :type="inputType" label="密码" v-model="password" placeholder="请输入密码" :state="rules.password.state">
-            <van-icon :name="viewPwd" v-tap="viewPassword"/>
+            <van-icon :name="viewPwd" @click="viewPassword"/>
           </mt-field>
         </div>
         <div class="footer clearfix">
-          <router-link to="/register" class="regist-btn">立即注册</router-link>
-          <mt-button type="primary" size="small" v-tap="submit">登录</mt-button>
+          <mt-button type="primary" size="small" @click="submit">登录</mt-button>
         </div>
       </div>
     </div>
@@ -35,10 +45,15 @@
             reg: /^.+$/,
             state: ''
           }
-        }
+        },
+        tipVisible: false
       }
     },
     methods: {
+      showTip (e) {
+        e.stopPropagation()
+        this.tipVisible = true
+      },
       validate (name) {
         let rule = this.rules[name]
         let value = this[name]
@@ -103,6 +118,21 @@
     justify-content: center;
     align-items: center;
     height: 100%;
+    .info
+      display block
+      width '26px'
+      height '26px'
+      line-height '26px'
+      border-radius 50%
+      font-size '18px'
+      background radial-gradient(closest-side at 50% 50%, #22AD76 40%, #0F6946 100%)
+      transform scale(0.8)
+      text-align center
+      color #b5e4c2
+    .tip
+      padding 0 40px
+      border-radius 10px
+      text-align left
     .main
       width: 700px;
       background-color: #fff;
